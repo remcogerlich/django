@@ -64,6 +64,23 @@ class TestSaveLoad(TestCase):
         loaded = NestedIntegerArrayModel.objects.get()
         self.assertEqual(instance.field, loaded.field)
 
+    def test_default_null(self):
+        # It was reported in #23834 that this raises an Exception
+        # because apparently the default value is a string, not None.
+        instance = NullableIntegerArrayModel()
+        instance.save()
+        loaded = NullableIntegerArrayModel.objects.get(pk=instance.pk)
+        self.assertEqual(loaded.field, None)
+        self.assertEqual(loaded.field, instance.field)
+
+    def test_default_integer_array(self):
+        # The same thing failed with a non-nullable integer array model.
+        instance = IntegerArrayModel()
+        instance.save()
+        loaded = IntegerArrayModel.objects.get(pk=instance.pk)
+        self.assertEqual(loaded.field, [])
+        self.assertEqual(loaded.field, instance.field)
+
 
 @unittest.skipUnless(connection.vendor == 'postgresql', 'PostgreSQL required')
 class TestQuerying(TestCase):

@@ -100,7 +100,12 @@ class ArrayField(Field):
             if callable(self.default):
                 return self.default()
             return self.default
-        return ''
+
+        # The default value depends on whether the field is nullable
+        if self.null:
+            return None
+        else:
+            return []
 
     def value_to_string(self, obj):
         values = []
